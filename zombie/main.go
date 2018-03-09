@@ -1,7 +1,6 @@
 package main
 
 func main() {
-	service := Service{}
-	service.Initialise()
-	service.Start(":3000")
+	api := API{}
+	api.Serve(":3000")
 }
