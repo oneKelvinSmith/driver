@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "nsq/zombie"
+	. "driver/zombie"
 )
 
 var _ = Describe("API", func() {
