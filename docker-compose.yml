@@ -21,3 +21,8 @@ services:
       - nsqlookupd
     ports:
       - "4171:4171"
+  zombie:
+    build: ./zombie
+    ports:
+      - "3000:3000"
+    tty: true
