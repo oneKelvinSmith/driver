@@ -1,6 +1,7 @@
 package main_test
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -12,28 +13,51 @@ import (
 )
 
 var _ = Describe("API", func() {
-	var api *API
+	api := &API{}
+	router := api.NewRouter()
+
 	var server *httptest.Server
+	var response *http.Response
+	var err error
 
 	BeforeEach(func() {
-		api = &API{}
-		server = httptest.NewServer(api.NewRouter())
+		server = httptest.NewServer(router)
 	})
 
 	AfterEach(func() {
 		server.Close()
+		Expect(response.Body.Close()).To(BeNil())
+		Expect(err).To(BeNil())
 	})
 
 	Describe("GET /", func() {
-		It("displays a welcome message", func() {
-			response, err := http.Get(server.URL)
-			Expect(err).To(BeNil())
+		It("return the service name as a health check", func() {
+			response, err = http.Get(server.URL)
 
-			body, err := ioutil.ReadAll(response.Body)
-			Expect(err).To(BeNil())
-			Expect(response.Body.Close()).To(BeNil())
+			var body []byte
+			body, err = ioutil.ReadAll(response.Body)
 
-			Expect(string(body)).To(Equal("Welcome to Zombie"))
+			Expect(string(body)).To(Equal("Zombie"))
+		})
+	})
+
+	Describe("GET /drivers/:id", func() {
+		var driver Driver
+
+		It("retuns a JSON object containing the driver's zombie status", func() {
+			response, err = http.Get(server.URL + "/drivers/42")
+
+			decoder := json.NewDecoder(response.Body)
+			err = decoder.Decode(&driver)
+
+			expectedDriver := Driver{ID: 42, Zombie: true}
+			Expect(driver).To(Equal(expectedDriver))
+
+			var responseJSON, driverJSON []byte
+			responseJSON, err = json.Marshal(driver)
+			driverJSON, err = json.Marshal(expectedDriver)
+
+			Expect(responseJSON).To(MatchJSON(driverJSON))
 		})
 	})
 })
