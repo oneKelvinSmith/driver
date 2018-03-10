@@ -26,6 +26,7 @@ var _ = Describe("Consumer", func() {
 	})
 
 	AfterEach(func() {
+		store.DeleteLocations(42)
 		Expect(err).To(BeNil())
 	})
 

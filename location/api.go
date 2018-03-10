@@ -4,21 +4,28 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
-// API contains the HTTP router and serves the API
+// API contains the HTTP router and serves the API.
 type API struct {
 	router *mux.Router
+	store  *Store
 }
 
-// Serve will start the api on a given port
+// Serve will start the api on a given port.
 func (a *API) Serve(port string) {
 	log.Fatal(http.ListenAndServe(port, a.NewRouter()))
 }
 
-// NewRouter creates and returns a pointer to an API router
+// ConnectStore attaches the API to the redis backed store.
+func (a *API) ConnectStore(s *Store) {
+	a.store = s
+}
+
+// NewRouter creates and returns a pointer to an API router.
 func (a *API) NewRouter() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/", a.getHome).Methods("GET")
@@ -37,18 +44,14 @@ func (a *API) getHome(w http.ResponseWriter, r *http.Request) {
 func (a *API) getLocations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	locationsJSON, err := json.Marshal([]Location{
-		Location{
-			Latitude:  42,
-			Longitude: 2.3,
-			UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
-		},
-		Location{
-			Latitude:  42.1,
-			Longitude: 2.32,
-			UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
-		},
-	})
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	handleAPIError(err)
+
+	log.Printf("DriverID: %v\n", DriverID(id))
+
+	locations := a.store.GetLocations(DriverID(id))
+
+	locationsJSON, err := json.Marshal(locations)
 	handleAPIError(err)
 
 	_, err = w.Write(locationsJSON)

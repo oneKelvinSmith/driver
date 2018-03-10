@@ -25,12 +25,12 @@ var _ = Describe("Store", func() {
 
 	BeforeEach(func() {
 		store.ConnectDB(":6379")
-		conn = store.Connect()
+		conn = store.Pool.Get()
 	})
 
 	AfterEach(func() {
-		conn.Do("DEL", key)
-		err = conn.Close()
+		store.DeleteLocations(driverID)
+		_ = conn.Close()
 		Expect(err).To(BeNil())
 	})
 
@@ -89,6 +89,56 @@ var _ = Describe("Store", func() {
 			location := store.GetLastLocation(0)
 
 			Expect(location).To(Equal(Location{}))
+		})
+	})
+
+	Describe("GetLocations", func() {
+		driverLocations := []DriverLocation{
+			DriverLocation{
+				DriverID: driverID,
+				Location: Location{
+					Latitude:  51.51,
+					Longitude: 18.18,
+					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+				},
+			},
+			DriverLocation{
+				DriverID: driverID,
+				Location: Location{
+					Latitude:  15.15,
+					Longitude: 81.81,
+					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+				},
+			},
+		}
+
+		BeforeEach(func() {
+			for _, driverLocation := range driverLocations {
+				store.PushLocation(driverLocation)
+			}
+		})
+
+		It("retrieves all the locations for a given DriverID from redis", func() {
+			locations := store.GetLocations(driverID)
+
+			Expect(locations).To(Equal([]Location{
+				Location{
+					Latitude:  15.15,
+					Longitude: 81.81,
+					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+				},
+				Location{
+					Latitude:  51.51,
+					Longitude: 18.18,
+					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+				},
+			}))
+		})
+
+		It("returns an empty slice if there is no data in redis", func() {
+			locations := store.GetLocations(0)
+
+			Expect(locations).To(BeEmpty())
 		})
 	})
 })

@@ -25,5 +25,6 @@ func main() {
 	consumer.ConnectBus(":4150", "driver", "location")
 
 	api := API{}
+	api.ConnectStore(&store)
 	api.Serve(":3000")
 }

@@ -3,28 +3,51 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/garyburd/redigo/redis"
 )
 
 // Store is used to insert and retrieve driver location state.
 type Store struct {
-	pool *redis.Pool
+	protocol string
+	port     string
+
+	Pool *redis.Pool
 }
 
 // ConnectDB initialised the store and creates a redis pool.
 func (s *Store) ConnectDB(port string) {
-	s.pool = &redis.Pool{
+	s.port = port
+	s.Pool = s.newPool()
+	s.cleanup()
+}
+
+func (s *Store) newPool() *redis.Pool {
+	return &redis.Pool{
 		MaxIdle: 3,
 		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", port)
+			conn, err := redis.Dial("tcp", s.port)
+			if err != nil {
+				return nil, err
+			}
+			return conn, err
 		},
 	}
 }
 
-// Connect returns a redis connection.
-func (s *Store) Connect() redis.Conn {
-	return s.pool.Get()
+func (s *Store) cleanup() {
+	channel := make(chan os.Signal, 1)
+	signal.Notify(channel, os.Interrupt)
+	signal.Notify(channel, syscall.SIGTERM)
+	signal.Notify(channel, syscall.SIGKILL)
+	go func() {
+		<-channel
+		_ = s.Pool.Close()
+		os.Exit(0)
+	}()
 }
 
 // PushLocation stores a driver's latest location in a redis list.
@@ -32,15 +55,23 @@ func (s *Store) PushLocation(d DriverLocation) {
 	value, err := json.Marshal(d.Location)
 	handleStoreError(err)
 
-	_, err = s.Connect().Do("LPUSH", key(d.DriverID), value)
+	conn := s.Pool.Get()
+
+	_, err = conn.Do("LPUSH", key(d.DriverID), value)
+	handleStoreError(err)
+
+	err = conn.Close()
 	handleStoreError(err)
 }
 
 // GetLastLocation stores a driver's latest location in to redis.
 func (s *Store) GetLastLocation(id DriverID) Location {
-	values, err := redis.ByteSlices(
-		s.Connect().Do("LRANGE", key(id), "0", "0"),
-	)
+	conn := s.Pool.Get()
+
+	values, err := redis.ByteSlices(conn.Do("LRANGE", key(id), 0, 0))
+	handleStoreError(err)
+
+	err = conn.Close()
 	handleStoreError(err)
 
 	if len(values) > 0 {
@@ -52,6 +83,33 @@ func (s *Store) GetLastLocation(id DriverID) Location {
 	}
 
 	return Location{}
+}
+
+// GetLocations stores a driver's latest location in to redis.
+func (s *Store) GetLocations(id DriverID) []Location {
+	conn := s.Pool.Get()
+	values, err := redis.ByteSlices(conn.Do("LRANGE", key(id), 0, -1))
+	handleStoreError(err)
+
+	err = conn.Close()
+	handleStoreError(err)
+
+	locations := make([]Location, len(values))
+	var location Location
+	for index, locationJSON := range values {
+		err = json.Unmarshal(locationJSON, &location)
+		handleStoreError(err)
+		locations[index] = location
+	}
+
+	return locations
+}
+
+// DeleteLocations removes all location data for a given driver.
+func (s *Store) DeleteLocations(id DriverID) {
+	conn := s.Pool.Get()
+	_, err := conn.Do("DEL", key(id))
+	handleStoreError(err)
 }
 
 func key(id DriverID) string {
