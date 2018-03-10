@@ -71,7 +71,8 @@ var _ = Describe("API", func() {
 					Longitude: 2.3,
 					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
 				},
-				Location{Latitude: 42.1,
+				Location{
+					Latitude:  42.1,
 					Longitude: 2.32,
 					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
 				},

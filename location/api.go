@@ -14,27 +14,27 @@ type API struct {
 }
 
 // Serve will start the api on a given port
-func (s *API) Serve(port string) {
-	log.Fatal(http.ListenAndServe(port, s.NewRouter()))
+func (a *API) Serve(port string) {
+	log.Fatal(http.ListenAndServe(port, a.NewRouter()))
 }
 
 // NewRouter creates and returns a pointer to an API router
-func (s *API) NewRouter() *mux.Router {
+func (a *API) NewRouter() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/", s.getHome).Methods("GET")
-	r.HandleFunc("/drivers/{id}/coordinates", s.getLocations).Methods("GET")
+	r.HandleFunc("/", a.getHome).Methods("GET")
+	r.HandleFunc("/drivers/{id}/coordinates", a.getLocations).Methods("GET")
 	http.Handle("/", r)
 
 	return r
 }
 
-func (s *API) getHome(w http.ResponseWriter, r *http.Request) {
+func (a *API) getHome(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	_, err := w.Write([]byte("Location"))
-	handleError(err)
+	handleAPIError(err)
 }
 
-func (s *API) getLocations(w http.ResponseWriter, r *http.Request) {
+func (a *API) getLocations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	locationsJSON, err := json.Marshal([]Location{
@@ -43,18 +43,19 @@ func (s *API) getLocations(w http.ResponseWriter, r *http.Request) {
 			Longitude: 2.3,
 			UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
 		},
-		Location{Latitude: 42.1,
+		Location{
+			Latitude:  42.1,
 			Longitude: 2.32,
 			UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
 		},
 	})
-	handleError(err)
+	handleAPIError(err)
 
 	_, err = w.Write(locationsJSON)
-	handleError(err)
+	handleAPIError(err)
 }
 
-func handleError(err error) {
+func handleAPIError(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
