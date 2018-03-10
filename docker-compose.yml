@@ -21,7 +21,11 @@ services:
       - nsqlookupd
     ports:
       - "4171:4171"
+  location:
+    build: ./location
+    ports:
+      - "3000:3000"
   zombie:
     build: ./zombie
     ports:
-      - "3000:3000"
+      - "3001:3000"
