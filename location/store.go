@@ -12,8 +12,8 @@ type Store struct {
 	pool *redis.Pool
 }
 
-// Connect initialised the store and creates a redis pool.
-func (s *Store) Connect(port string) {
+// ConnectDB initialised the store and creates a redis pool.
+func (s *Store) ConnectDB(port string) {
 	s.pool = &redis.Pool{
 		MaxIdle: 3,
 		Dial: func() (redis.Conn, error) {
@@ -22,19 +22,28 @@ func (s *Store) Connect(port string) {
 	}
 }
 
-// GetConnection returns a redis connection.
-func (s *Store) GetConnection() redis.Conn {
+// Connect returns a redis connection.
+func (s *Store) Connect() redis.Conn {
 	return s.pool.Get()
 }
 
-// InsertLocation stores a driver's latest location in to redis.
-func (s *Store) InsertLocation(d DriverLocation) {
+// SetLocation stores a driver's latest location in to redis.
+func (s *Store) SetLocation(d DriverLocation) {
 	key := "location:" + string(d.DriverID)
 	value, err := json.Marshal(d.Location)
 	handleStoreError(err)
 
-	_, err = s.GetConnection().Do("SET", key, value)
+	_, err = s.Connect().Do("SET", key, value)
 	handleStoreError(err)
+}
+
+// GetLocation stores a driver's latest location in to redis.
+func (s *Store) GetLocation(driverID int) interface{} {
+	key := "location:" + string(driverID)
+	value, err := s.Connect().Do("GET", key)
+	handleStoreError(err)
+
+	return value
 }
 
 func handleStoreError(err error) {

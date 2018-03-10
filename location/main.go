@@ -17,5 +17,5 @@ func main() {
 	api := API{}
 	api.Serve(":3000")
 	store := Store{}
-	store.Connect(":6379")
+	store.ConnectDB(":6379")
 }
