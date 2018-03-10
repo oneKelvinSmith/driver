@@ -30,7 +30,7 @@ var _ = Describe("Store", func() {
 		})
 
 		It("inserts the location into redis", func() {
-			locationUpdate := LocationUpdate{
+			driverLocation := DriverLocation{
 				DriverID: 42,
 				Location: Location{
 					Latitude:  48.8566,
@@ -39,7 +39,7 @@ var _ = Describe("Store", func() {
 				},
 			}
 
-			store.InsertLocation(locationUpdate)
+			store.InsertLocation(driverLocation)
 
 			var (
 				key      string
@@ -48,7 +48,7 @@ var _ = Describe("Store", func() {
 			)
 
 			connection = store.GetConnection()
-			key = "location:" + string(locationUpdate.DriverID)
+			key = "location:" + string(driverLocation.DriverID)
 			value, err = connection.Do("GET", key)
 			err = json.Unmarshal(value.([]byte), &location)
 

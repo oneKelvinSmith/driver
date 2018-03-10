@@ -28,9 +28,9 @@ func (s *Store) GetConnection() redis.Conn {
 }
 
 // InsertLocation stores a driver's latest location in to redis.
-func (s *Store) InsertLocation(u LocationUpdate) {
-	key := "location:" + string(u.DriverID)
-	value, err := json.Marshal(u.Location)
+func (s *Store) InsertLocation(d DriverLocation) {
+	key := "location:" + string(d.DriverID)
+	value, err := json.Marshal(d.Location)
 	handleStoreError(err)
 
 	_, err = s.GetConnection().Do("SET", key, value)

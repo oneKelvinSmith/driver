@@ -7,8 +7,8 @@ type Location struct {
 	UpdatedAt string  `json:"updated_at"`
 }
 
-// LocationUpdate represents an update to the geographical location of a driver.
-type LocationUpdate struct {
+// DriverLocation represents an update to the geographical location of a driver.
+type DriverLocation struct {
 	DriverID int `json:"driver_id"`
 	Location Location
 }
