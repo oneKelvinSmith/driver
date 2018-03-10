@@ -17,8 +17,13 @@ type DriverLocation struct {
 }
 
 func main() {
-	api := API{}
-	api.Serve(":3000")
 	store := Store{}
 	store.ConnectDB(":6379")
+
+	consumer := Consumer{}
+	consumer.ConnectStore(&store)
+	consumer.ConnectBus(":4150", "driver", "location")
+
+	api := API{}
+	api.Serve(":3000")
 }
