@@ -15,13 +15,15 @@ type Consumer struct {
 
 // ConnectBus registers the consumer with a NSQ daemon via the lookup daemon
 // to subscribe to a given topic and channel.
-func (c *Consumer) ConnectBus(port string, topic string, channel string) {
-	consumer, err := nsq.NewConsumer(topic, channel, nsq.NewConfig())
+func (c *Consumer) ConnectBus(lookupHost string, topic string, channel string) {
+	config := nsq.NewConfig()
+	consumer, err := nsq.NewConsumer(topic, channel, config)
 	handleConsumerError(err)
 
+	consumer.ChangeMaxInFlight(100)
 	consumer.AddHandler(nsq.HandlerFunc(c.UpdateLocation))
 
-	err = consumer.ConnectToNSQD(port)
+	err = consumer.ConnectToNSQLookupd(lookupHost)
 	handleConsumerError(err)
 
 	c.consumer = consumer
@@ -37,11 +39,13 @@ func (c *Consumer) UpdateLocation(m *nsq.Message) error {
 	driverLocation := DriverLocation{}
 	err := json.Unmarshal(m.Body, &driverLocation)
 
-	if err == nil {
-		c.store.PushLocation(driverLocation)
+	if err != nil {
+		return err
 	}
 
-	return err
+	c.store.PushLocation(driverLocation)
+
+	return nil
 }
 
 func handleConsumerError(err error) {

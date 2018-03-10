@@ -18,11 +18,11 @@ type DriverLocation struct {
 
 func main() {
 	store := Store{}
-	store.ConnectDB(":6379")
+	store.ConnectDB("redis:6379")
 
 	consumer := Consumer{}
 	consumer.ConnectStore(&store)
-	consumer.ConnectBus(":4150", "driver", "location")
+	consumer.ConnectBus("nsqlookupd:4161", "driver", "location")
 
 	api := API{}
 	api.ConnectStore(&store)
