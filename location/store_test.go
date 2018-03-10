@@ -14,8 +14,10 @@ import (
 var _ = Describe("Store", func() {
 	store := &Store{}
 
-	var connection redis.Conn
-	var err error
+	var (
+		connection redis.Conn
+		err        error
+	)
 
 	Describe("InsertLocation", func() {
 		BeforeEach(func() {
@@ -26,16 +28,6 @@ var _ = Describe("Store", func() {
 			err = connection.Close()
 			Expect(err).To(BeNil())
 		})
-
-		// Reference JSON payload
-		// {
-		//	"driver_id": 42,
-		//	"location": {
-		//		"latitude": 48.8566,
-		//		"longitude": 2.3522,
-		//		"updated_at": "YYYY-MM-DDTHH:MM:SSZ"
-		//	}
-		// }
 
 		It("inserts the location into redis", func() {
 			locationUpdate := LocationUpdate{
@@ -49,9 +41,11 @@ var _ = Describe("Store", func() {
 
 			store.InsertLocation(locationUpdate)
 
-			var key string
-			var value interface{}
-			var location Location
+			var (
+				key      string
+				value    interface{}
+				location Location
+			)
 
 			connection = store.GetConnection()
 			key = "location:" + string(locationUpdate.DriverID)

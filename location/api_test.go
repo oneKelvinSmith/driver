@@ -16,9 +16,11 @@ var _ = Describe("API", func() {
 	api := &API{}
 	router := api.NewRouter()
 
-	var server *httptest.Server
-	var response *http.Response
-	var err error
+	var (
+		server   *httptest.Server
+		response *http.Response
+		err      error
+	)
 
 	BeforeEach(func() {
 		server = httptest.NewServer(router)
@@ -49,21 +51,6 @@ var _ = Describe("API", func() {
 
 			decoder := json.NewDecoder(response.Body)
 			err = decoder.Decode(&locations)
-
-			// Reference JSON response
-			//
-			// [
-			//	{
-			//		"latitude": 42,
-			//		"longitude": 2.3,
-			//		"updated_at": "YYYY-MM-DDTHH:MM:SSZ"
-			//	},
-			//	{
-			//		"latitude": 42.1,
-			//		"longitude": 2.32,
-			//		"updated_at": "YYYY-MM-DDTHH:MM:SSZ"
-			//	}
-			// ]
 
 			expectedLocations := []Location{
 				Location{
