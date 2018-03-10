@@ -47,8 +47,6 @@ func (a *API) getLocations(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	handleAPIError(err)
 
-	log.Printf("DriverID: %v\n", DriverID(id))
-
 	locations := a.store.GetLocations(DriverID(id))
 
 	locationsJSON, err := json.Marshal(locations)
