@@ -38,12 +38,16 @@ func (s *Store) SetLocation(d DriverLocation) {
 }
 
 // GetLocation stores a driver's latest location in to redis.
-func (s *Store) GetLocation(driverID int) interface{} {
-	key := "location:" + string(driverID)
+func (s *Store) GetLocation(d DriverID) Location {
+	key := "location:" + string(d)
 	value, err := s.Connect().Do("GET", key)
 	handleStoreError(err)
 
-	return value
+	var location Location
+	err = json.Unmarshal(value.([]byte), &location)
+	handleStoreError(err)
+
+	return location
 }
 
 func handleStoreError(err error) {

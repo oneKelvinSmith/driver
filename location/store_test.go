@@ -13,11 +13,10 @@ import (
 
 var _ = Describe("Store", func() {
 	store := &Store{}
-	driverID := 42
+
+	driverID := DriverID(42)
 
 	var (
-		key      string
-		value    interface{}
 		location Location
 		conn     redis.Conn
 		err      error
@@ -33,39 +32,58 @@ var _ = Describe("Store", func() {
 		Expect(err).To(BeNil())
 	})
 
-	Describe("GetLocation", func() {
-		It("retrieves the location for a given DriverID from redis", func() {
-			key = "location:" + string(driverID)
-			value, err = conn.Do("SET", key, "some_value")
-
-			location := store.GetLocation(driverID)
-			Expect(location).To(Equal([]byte("some_value")))
-		})
-	})
-
 	Describe("SetLocation", func() {
-		It("inserts the location into redis", func() {
-			driverLocation := DriverLocation{
-				DriverID: driverID,
-				Location: Location{
-					Latitude:  48.8566,
-					Longitude: 2.3522,
-					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
-				},
-			}
+		driverLocation := DriverLocation{
+			DriverID: driverID,
+			Location: Location{
+				Latitude:  48.48,
+				Longitude: 3.33,
+				UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+			},
+		}
 
+		var (
+			key   string
+			value interface{}
+		)
+
+		It("inserts the location into redis", func() {
 			store.SetLocation(driverLocation)
 
-			key = "location:" + string(driverLocation.DriverID)
+			key = "location:" + string(driverID)
 			value, err = conn.Do("GET", key)
 			err = json.Unmarshal(value.([]byte), &location)
 
 			Expect(location).To(Equal(Location{
-				Latitude:  48.8566,
-				Longitude: 2.3522,
+				Latitude:  48.48,
+				Longitude: 3.33,
 				UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
 			}))
 		})
 	})
 
+	Describe("GetLocation", func() {
+		driverLocation := DriverLocation{
+			DriverID: driverID,
+			Location: Location{
+				Latitude:  48.48,
+				Longitude: 3.33,
+				UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+			},
+		}
+
+		BeforeEach(func() {
+			store.SetLocation(driverLocation)
+		})
+
+		It("retrieves the location for a given DriverID from redis", func() {
+			location := store.GetLocation(driverID)
+
+			Expect(location).To(Equal(Location{
+				Latitude:  48.48,
+				Longitude: 3.33,
+				UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+			}))
+		})
+	})
 })
