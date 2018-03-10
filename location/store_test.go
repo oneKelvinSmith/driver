@@ -84,5 +84,11 @@ var _ = Describe("Store", func() {
 				UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
 			}))
 		})
+
+		It("returns an empty location if there is no data in redis", func() {
+			location := store.GetLastLocation(0)
+
+			Expect(location).To(Equal(Location{}))
+		})
 	})
 })

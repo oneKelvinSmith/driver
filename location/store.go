@@ -43,11 +43,15 @@ func (s *Store) GetLastLocation(id DriverID) Location {
 	)
 	handleStoreError(err)
 
-	var location Location
-	err = json.Unmarshal(values[0], &location)
-	handleStoreError(err)
+	if len(values) > 0 {
+		var location Location
+		err = json.Unmarshal(values[0], &location)
+		handleStoreError(err)
 
-	return location
+		return location
+	}
+
+	return Location{}
 }
 
 func key(id DriverID) string {
