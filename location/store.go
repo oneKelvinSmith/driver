@@ -13,11 +13,11 @@ type Store struct {
 }
 
 // Connect initialised the store and creates a redis pool.
-func (s *Store) Connect() {
+func (s *Store) Connect(port string) {
 	s.pool = &redis.Pool{
 		MaxIdle: 3,
 		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", ":6379")
+			return redis.Dial("tcp", port)
 		},
 	}
 }

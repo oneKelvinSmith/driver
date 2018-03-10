@@ -19,7 +19,7 @@ var _ = Describe("Store", func() {
 
 	Describe("InsertLocation", func() {
 		BeforeEach(func() {
-			store.Connect()
+			store.Connect(":6379")
 		})
 
 		AfterEach(func() {
