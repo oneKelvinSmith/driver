@@ -27,27 +27,31 @@ func (s *Store) Connect() redis.Conn {
 	return s.pool.Get()
 }
 
-// SetLocation stores a driver's latest location in to redis.
-func (s *Store) SetLocation(d DriverLocation) {
-	key := "location:" + string(d.DriverID)
+// PushLocation stores a driver's latest location in a redis list.
+func (s *Store) PushLocation(d DriverLocation) {
 	value, err := json.Marshal(d.Location)
 	handleStoreError(err)
 
-	_, err = s.Connect().Do("SET", key, value)
+	_, err = s.Connect().Do("LPUSH", key(d.DriverID), value)
 	handleStoreError(err)
 }
 
-// GetLocation stores a driver's latest location in to redis.
-func (s *Store) GetLocation(d DriverID) Location {
-	key := "location:" + string(d)
-	value, err := s.Connect().Do("GET", key)
+// GetLastLocation stores a driver's latest location in to redis.
+func (s *Store) GetLastLocation(id DriverID) Location {
+	values, err := redis.ByteSlices(
+		s.Connect().Do("LRANGE", key(id), "0", "0"),
+	)
 	handleStoreError(err)
 
 	var location Location
-	err = json.Unmarshal(value.([]byte), &location)
+	err = json.Unmarshal(values[0], &location)
 	handleStoreError(err)
 
 	return location
+}
+
+func key(id DriverID) string {
+	return "driver:" + string(id) + ":location"
 }
 
 func handleStoreError(err error) {

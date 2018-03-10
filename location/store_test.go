@@ -15,6 +15,7 @@ var _ = Describe("Store", func() {
 	store := &Store{}
 
 	driverID := DriverID(42)
+	key := "driver:" + string(driverID) + ":location"
 
 	var (
 		location Location
@@ -28,11 +29,12 @@ var _ = Describe("Store", func() {
 	})
 
 	AfterEach(func() {
+		conn.Do("DEL", key)
 		err = conn.Close()
 		Expect(err).To(BeNil())
 	})
 
-	Describe("SetLocation", func() {
+	Describe("PushLocation", func() {
 		driverLocation := DriverLocation{
 			DriverID: driverID,
 			Location: Location{
@@ -42,17 +44,14 @@ var _ = Describe("Store", func() {
 			},
 		}
 
-		var (
-			key   string
-			value interface{}
-		)
-
 		It("inserts the location into redis", func() {
-			store.SetLocation(driverLocation)
+			store.PushLocation(driverLocation)
 
-			key = "location:" + string(driverID)
-			value, err = conn.Do("GET", key)
-			err = json.Unmarshal(value.([]byte), &location)
+			var values [][]byte
+			values, err = redis.ByteSlices(
+				conn.Do("LRANGE", key, "0", "0"),
+			)
+			err = json.Unmarshal(values[0], &location)
 
 			Expect(location).To(Equal(Location{
 				Latitude:  48.48,
@@ -62,7 +61,7 @@ var _ = Describe("Store", func() {
 		})
 	})
 
-	Describe("GetLocation", func() {
+	Describe("GetLastLocation", func() {
 		driverLocation := DriverLocation{
 			DriverID: driverID,
 			Location: Location{
@@ -73,11 +72,11 @@ var _ = Describe("Store", func() {
 		}
 
 		BeforeEach(func() {
-			store.SetLocation(driverLocation)
+			store.PushLocation(driverLocation)
 		})
 
 		It("retrieves the location for a given DriverID from redis", func() {
-			location := store.GetLocation(driverID)
+			location := store.GetLastLocation(driverID)
 
 			Expect(location).To(Equal(Location{
 				Latitude:  48.48,
