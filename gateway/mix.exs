@@ -13,12 +13,16 @@ defmodule Gateway.MixProject do
 
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {Gateway.Application, []}
     ]
   end
 
   defp deps do
     [
+      {:cowboy, "~> 1.1"},
+      {:plug, "~> 1.5"},
+      {:poison, "~> 3.1"}
     ]
   end
 end
