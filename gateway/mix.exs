@@ -21,6 +21,7 @@ defmodule Gateway.MixProject do
   defp deps do
     [
       {:cowboy, "~> 1.1"},
+      {:httpoison, "~> 1.0"},
       {:plug, "~> 1.5"},
       {:poison, "~> 3.1"}
     ]
