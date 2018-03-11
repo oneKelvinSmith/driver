@@ -13,17 +13,18 @@ defmodule Gateway.MixProject do
 
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :elixir_nsq],
       mod: {Gateway.Application, []}
     ]
   end
 
   defp deps do
     [
+      {:elixir_nsq, "~> 1.0"},
       {:cowboy, "~> 1.1"},
       {:httpoison, "~> 1.0"},
       {:plug, "~> 1.5"},
-      {:poison, "~> 3.1"}
+      {:poison, "~> 3.0", override: true}
     ]
   end
 end

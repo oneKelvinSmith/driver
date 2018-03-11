@@ -9,7 +9,8 @@ defmodule Gateway.Application do
 
   def start(_type, _args) do
     children = [
-      Cowboy.child_spec(:http, Gateway.Router, [], port: 3000)
+      Cowboy.child_spec(:http, Gateway.Router, [], port: 3000),
+      {Gateway.Location.Producer, name: Gateway.Location.Producer}
     ]
 
     opts = [strategy: :one_for_one, name: Gateway.Supervisor]
