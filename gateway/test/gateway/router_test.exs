@@ -6,27 +6,39 @@ defmodule Gateway.RouterTest do
 
   @opts Router.init([])
 
-  test "hello world" do
+  test "health check" do
     conn = conn(:get, "/")
 
     conn = Router.call(conn, @opts)
 
     assert get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]
 
-    assert conn.state     == :sent
-    assert conn.status    == 200
+    assert conn.state == :sent
+    assert conn.status == 200
     assert conn.resp_body == "Gateway"
   end
 
-  test "404 page" do
+  test "404" do
     conn = conn(:get, "/anything_else")
 
     conn = Router.call(conn, @opts)
 
     assert get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]
 
-    assert conn.state     == :sent
-    assert conn.status    == 404
+    assert conn.state == :sent
+    assert conn.status == 404
     assert conn.resp_body == "\{\"error\":\"Not Found\"\}"
+  end
+
+  test "driver location update" do
+    conn = conn(:patch, "/drivers/42")
+
+    conn = Router.call(conn, @opts)
+
+    assert get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "\{\"driver\":\"42\"\}"
   end
 end
