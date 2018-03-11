@@ -42,15 +42,47 @@ defmodule Gateway.RouterTest do
     assert conn.resp_body == "\{\"driver\":\"42\"\}"
   end
 
-  test "driver zombie status" do
-    conn = conn(:get, "/drivers/42")
+  describe "driver zombie status" do
+    defmodule ZombieDriverApi do
+      @behaviour Gateway.Zombie
 
-    conn = Router.call(conn, @opts)
+      def status(driver_id) do
+        {:ok, %{"id" => String.to_integer(driver_id), "zombie" => true}}
+      end
+    end
 
-    assert get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]
+    test "when driver is a zombie" do
+      conn =
+        conn(:get, "/drivers/42")
+        |> Plug.Conn.put_private(:zombie_api, ZombieDriverApi)
+        |> Router.call(@opts)
 
-    assert conn.state == :sent
-    assert conn.status == 200
-    assert conn.resp_body == "\{\"id\":\"42\"\,\"zombie\":\"true\"}"
+      assert get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]
+
+      assert conn.state == :sent
+      assert conn.status == 200
+      assert Poison.decode!(conn.resp_body) == %{"id" => 42, "zombie" => true}
+    end
+
+    defmodule AliveDriverApi do
+      @behaviour Gateway.Zombie
+
+      def status(driver_id) do
+        {:ok, %{"id" => String.to_integer(driver_id), "zombie" => false}}
+      end
+    end
+
+    test "when driver is NOT a zombie" do
+      conn =
+        conn(:get, "/drivers/42")
+        |> Plug.Conn.put_private(:zombie_api, AliveDriverApi)
+        |> Router.call(@opts)
+
+      assert get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]
+
+      assert conn.state == :sent
+      assert conn.status == 200
+      assert Poison.decode!(conn.resp_body) == %{"id" => 42, "zombie" => false}
+    end
   end
 end
