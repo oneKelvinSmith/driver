@@ -84,5 +84,26 @@ defmodule Gateway.RouterTest do
       assert conn.status == 200
       assert Poison.decode!(conn.resp_body) == %{"id" => 42, "zombie" => false}
     end
+
+    defmodule BrokenZombieApi do
+      @behaviour Gateway.Zombie
+
+      def status(_driver_id) do
+        {:error, :some_error}
+      end
+    end
+
+    test "when zombie api has an error" do
+      conn =
+        conn(:get, "/drivers/42")
+        |> Plug.Conn.put_private(:zombie_api, BrokenZombieApi)
+        |> Router.call(@opts)
+
+      assert get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]
+
+      assert conn.state == :sent
+      assert conn.status == 400
+      assert conn.resp_body == "Unable to retrieve zombie status for driver: 42"
+    end
   end
 end

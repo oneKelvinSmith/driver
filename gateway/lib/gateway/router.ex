@@ -1,8 +1,8 @@
 defmodule Gateway.Router do
   use Plug.Router
 
-  plug :match
-  plug :dispatch
+  plug(:match)
+  plug(:dispatch)
 
   get "/" do
     conn
@@ -34,6 +34,7 @@ defmodule Gateway.Router do
     case zombie_api.status(driver_id) do
       {:ok, zombie_status} ->
         send_resp(conn, 200, Poison.encode!(zombie_status))
+
       {:error, _} ->
         send_resp(conn, 400, "Unable to retrieve zombie status for driver: #{driver_id}")
     end

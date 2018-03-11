@@ -7,7 +7,7 @@ defmodule Gateway.Zombie.ApiTest do
   @tag :httpoison
   describe "status/1" do
     setup do
-      HTTPoison.start
+      HTTPoison.start()
       :ok
     end
 
