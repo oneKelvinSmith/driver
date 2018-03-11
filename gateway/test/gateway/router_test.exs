@@ -41,4 +41,16 @@ defmodule Gateway.RouterTest do
     assert conn.status == 200
     assert conn.resp_body == "\{\"driver\":\"42\"\}"
   end
+
+  test "driver zombie status" do
+    conn = conn(:get, "/drivers/42")
+
+    conn = Router.call(conn, @opts)
+
+    assert get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "\{\"id\":\"42\"\,\"zombie\":\"true\"}"
+  end
 end

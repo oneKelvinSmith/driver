@@ -16,6 +16,12 @@ defmodule Gateway.Router do
     |> send_resp(200, "\{\"driver\":\"#{id}\"\}")
   end
 
+  get "/drivers/:id" do
+    conn
+    |> put_resp_content_type("application/json", "utf-8")
+    |> send_resp(200, "\{\"id\":\"#{id}\"\,\"zombie\":\"true\"}")
+  end
+
   match _ do
     conn
     |> put_resp_content_type("application/json", "utf-8")
