@@ -11,8 +11,9 @@ defmodule Gateway.Location.ProducerTest do
 
   @tag :nsq
   test "exists" do
-    driver_id = 42
+    coordinates = %{}
+    response = Producer.publish_location(42, coordinates)
 
-    assert Producer.update_location(driver_id) == {:ok, "OK"}
+    assert response == {:ok, "OK"}
   end
 end

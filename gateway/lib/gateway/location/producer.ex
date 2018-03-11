@@ -17,12 +17,24 @@ defmodule Gateway.Location.Producer do
     NSQ.Producer.Supervisor.start_link(topic(), config(), opts)
   end
 
-  def update_location(driver_id) do
-    if Enum.any?(Supervisor.which_children(__MODULE__)) do
-      NSQ.Producer.pub(__MODULE__, "driver location update #{driver_id}")
+  def publish_location(driver_id, location) do
+    if service_available() do
+      NSQ.Producer.pub(__MODULE__, encode(driver_id, location))
     else
       {:error, :unavailable}
     end
+  end
+
+  defp encode(driver_id, location) when is_binary(driver_id) do
+    Poison.encode!(%{driver_id: String.to_integer(driver_id), location: location})
+  end
+
+  defp encode(driver_id, location) do
+    Poison.encode!(%{driver_id: driver_id, location: location})
+  end
+
+  defp service_available do
+    Enum.any?(Supervisor.which_children(__MODULE__))
   end
 
   defp topic do

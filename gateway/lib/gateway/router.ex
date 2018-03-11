@@ -38,7 +38,7 @@ defmodule Gateway.Router do
   defp update_driver_location(%Plug.Conn{private: private} = conn, driver_id) do
     producer = private[:location_producer] || Gateway.Location.Producer
 
-    case producer.update_location(driver_id) do
+    case producer.publish_location(driver_id, conn.body_params) do
       {:ok, _} ->
         send_resp(conn, 204, "")
 

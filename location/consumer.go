@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"time"
 
 	"github.com/nsqio/go-nsq"
 )
@@ -36,7 +37,11 @@ func (c *Consumer) ConnectStore(s *Store) {
 
 // UpdateLocation is a message handler that stores driver location updates.
 func (c *Consumer) UpdateLocation(m *nsq.Message) error {
-	driverLocation := DriverLocation{}
+	driverLocation := DriverLocation{
+		Location: Location{
+			UpdatedAt: time.Now().Format(time.RFC3339),
+		},
+	}
 	err := json.Unmarshal(m.Body, &driverLocation)
 
 	if err != nil {

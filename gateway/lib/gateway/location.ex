@@ -4,9 +4,10 @@ defmodule Gateway.Location do
   """
 
   @typep driver_id :: integer
+  @typep location :: %{latitude: number, longitude: number}
 
   @doc """
   Updates the location of a given driver identified by `driver_id`.
   """
-  @callback update_location(driver_id :: driver_id) :: {:ok, term} | {:error, term}
+  @callback publish_location(id :: driver_id, l :: location) :: {:ok, term} | {:error, term}
 end

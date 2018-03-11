@@ -34,7 +34,7 @@ defmodule Gateway.RouterTest do
     defmodule LocationProducer do
       @behaviour Gateway.Location
 
-      def update_location(_driver_id) do
+      def publish_location(_driver_id, _location) do
         {:ok, "OK"}
       end
     end
@@ -62,7 +62,7 @@ defmodule Gateway.RouterTest do
     defmodule UnavailableProducer do
       @behaviour Gateway.Location
 
-      def update_location(_driver_id) do
+      def publish_location(_driver_id, _location) do
         {:error, :unavailable}
       end
     end
