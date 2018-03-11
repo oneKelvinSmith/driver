@@ -5,15 +5,14 @@ defmodule Gateway.Zombie.Api do
 
   @behaviour Gateway.Zombie
 
-  @server "localhost:3002"
-  @user_agent [{"User-agent", "Gateway"}]
+  @user_agent [{"User-agent", "Gateway/0.42"}]
 
   def status(driver_id) do
     HTTPoison.get(url(driver_id), @user_agent) |> handle_response
   end
 
   def url(driver_id) do
-    "#{@server}/drivers/#{driver_id}"
+    host() <> ":" <> port() <> "/drivers/#{driver_id}"
   end
 
   def handle_response({:ok, %{status_code: 200, body: body}}) do
@@ -26,5 +25,13 @@ defmodule Gateway.Zombie.Api do
 
   def parse(body) do
     Poison.Parser.parse!(body)
+  end
+
+  defp host do
+    Application.get_env(:gateway, :zombie_host)
+  end
+
+  defp port do
+    Application.get_env(:gateway, :zombie_port)
   end
 end

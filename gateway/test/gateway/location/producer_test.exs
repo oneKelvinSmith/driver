@@ -1,8 +1,13 @@
 defmodule Gateway.Location.ProducerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest Gateway
 
   alias Gateway.Location.Producer
+
+  setup do
+    producer = start_supervised!(Producer)
+    %{producer: producer}
+  end
 
   @tag :nsq
   test "exists" do

@@ -3,22 +3,18 @@ defmodule Gateway.Location.Producer do
   Implimentation for the Location Service NSQ Producer.
   """
 
-  use GenServer
-
   @behaviour Gateway.Location
 
-  @topic "driver"
-  @config %NSQ.Config{
-    nsqds: ["127.0.0.1:4150"],
-    user_agent: "Gateway Producer"
-  }
+  use GenServer
+
+  @user_agent "Gateway Producer/0.42"
 
   def init(args) do
     {:ok, args}
   end
 
   def start_link(opts \\ []) do
-    NSQ.Producer.Supervisor.start_link(@topic, @config, opts)
+    NSQ.Producer.Supervisor.start_link(topic(), config(), opts)
   end
 
   def update_location(driver_id) do
@@ -27,5 +23,23 @@ defmodule Gateway.Location.Producer do
     else
       {:error, :unavailable}
     end
+  end
+
+  defp topic do
+    get_env(:nsqd_topic)
+  end
+
+  defp config do
+    port = get_env(:nsqd_port)
+    host = get_env(:nsqd_host)
+
+    %NSQ.Config{
+      nsqds: [host <> ":" <> port],
+      user_agent: @user_agent
+    }
+  end
+
+  defp get_env(variable) do
+    Application.get_env(:gateway, variable)
   end
 end

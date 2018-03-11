@@ -1,0 +1,10 @@
+*.ez
+.#*
+.git
+_build
+cover
+deps
+doc
+erl_crash.dump
+test
+tmp
