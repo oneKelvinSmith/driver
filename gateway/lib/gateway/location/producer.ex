@@ -22,8 +22,10 @@ defmodule Gateway.Location.Producer do
   end
 
   def update_location(driver_id) do
-    NSQ.Producer.pub(__MODULE__, "driver location update #{driver_id}")
-
-    {:ok, {:updated, driver_id}}
+    if Enum.any?(Supervisor.which_children(__MODULE__)) do
+      NSQ.Producer.pub(__MODULE__, "driver location update #{driver_id}")
+    else
+      {:error, :unavailable}
+    end
   end
 end

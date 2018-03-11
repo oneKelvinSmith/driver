@@ -30,16 +30,62 @@ defmodule Gateway.RouterTest do
     assert conn.resp_body == "\{\"error\":\"Not Found\"\}"
   end
 
-  test "driver location update" do
-    conn = conn(:patch, "/drivers/42")
+  describe "driver location update" do
+    defmodule LocationProducer do
+      @behaviour Gateway.Location
 
-    conn = Router.call(conn, @opts)
+      def update_location(_driver_id) do
+        {:ok, "OK"}
+      end
+    end
 
-    assert get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]
+    test "when NSQ is available" do
+      update_body =
+        Poison.encode!(%{
+          latitude: 48.8566,
+          longitude: 2.3522
+        })
 
-    assert conn.state == :sent
-    assert conn.status == 200
-    assert conn.resp_body == "\{\"driver\":\"42\"\}"
+      conn =
+        conn(:patch, "/drivers/42", update_body)
+        |> put_req_header("content-type", "application/json")
+        |> Plug.Conn.put_private(:location_producer, LocationProducer)
+        |> Router.call(@opts)
+
+      assert get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]
+
+      assert conn.state == :sent
+      assert conn.status == 204
+      assert conn.resp_body == ""
+    end
+
+    defmodule UnavailableProducer do
+      @behaviour Gateway.Location
+
+      def update_location(_driver_id) do
+        {:error, :unavailable}
+      end
+    end
+
+    test "when NSQ is NOT available" do
+      update_body =
+        Poison.encode!(%{
+          latitude: 48.8566,
+          longitude: 2.3522
+        })
+
+      conn =
+        conn(:patch, "/drivers/42", update_body)
+        |> put_req_header("content-type", "application/json")
+        |> Plug.Conn.put_private(:location_producer, UnavailableProducer)
+        |> Router.call(@opts)
+
+      assert get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]
+
+      assert conn.state == :sent
+      assert conn.status == 503
+      assert conn.resp_body == "\{\"error\":\"Unable to update location of driver: 42\"\}"
+    end
   end
 
   describe "driver zombie status" do
@@ -102,8 +148,8 @@ defmodule Gateway.RouterTest do
       assert get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]
 
       assert conn.state == :sent
-      assert conn.status == 400
-      assert conn.resp_body == "Unable to retrieve zombie status for driver: 42"
+      assert conn.status == 503
+      assert conn.resp_body == "\{\"error\":\"Unable to retrieve zombie status for driver: 42\"\}"
     end
   end
 end
