@@ -15,9 +15,10 @@ RUN dep ensure
 
 RUN go build
 
+
 ### Release
 
-FROM golang:alpine
+FROM alpine:3.7
 
 WORKDIR /service
 
