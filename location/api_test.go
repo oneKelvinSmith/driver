@@ -52,7 +52,7 @@ var _ = Describe("API", func() {
 				Location: Location{
 					Latitude:  42.42,
 					Longitude: 22.33,
-					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+					UpdatedAt: "2018-03-12T02:09:50Z",
 				},
 			},
 			DriverLocation{
@@ -60,7 +60,7 @@ var _ = Describe("API", func() {
 				Location: Location{
 					Latitude:  42.424,
 					Longitude: 22.332,
-					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+					UpdatedAt: "2018-03-12T02:09:41Z",
 				},
 			},
 		}
@@ -90,12 +90,12 @@ var _ = Describe("API", func() {
 				Location{
 					Latitude:  42.424,
 					Longitude: 22.332,
-					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+					UpdatedAt: "2018-03-12T02:09:41Z",
 				},
 				Location{
 					Latitude:  42.42,
 					Longitude: 22.33,
-					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+					UpdatedAt: "2018-03-12T02:09:50Z",
 				},
 			}))
 		})

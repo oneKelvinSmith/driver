@@ -40,7 +40,7 @@ var _ = Describe("Store", func() {
 			Location: Location{
 				Latitude:  48.48,
 				Longitude: 3.33,
-				UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+				UpdatedAt: "2018-03-12T02:09:41Z",
 			},
 		}
 
@@ -56,7 +56,7 @@ var _ = Describe("Store", func() {
 			Expect(location).To(Equal(Location{
 				Latitude:  48.48,
 				Longitude: 3.33,
-				UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+				UpdatedAt: "2018-03-12T02:09:41Z",
 			}))
 		})
 	})
@@ -67,7 +67,7 @@ var _ = Describe("Store", func() {
 			Location: Location{
 				Latitude:  48.48,
 				Longitude: 3.33,
-				UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+				UpdatedAt: "2018-03-12T02:09:41Z",
 			},
 		}
 
@@ -81,7 +81,7 @@ var _ = Describe("Store", func() {
 			Expect(location).To(Equal(Location{
 				Latitude:  48.48,
 				Longitude: 3.33,
-				UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+				UpdatedAt: "2018-03-12T02:09:41Z",
 			}))
 		})
 
@@ -99,7 +99,7 @@ var _ = Describe("Store", func() {
 				Location: Location{
 					Latitude:  51.51,
 					Longitude: 18.18,
-					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+					UpdatedAt: "2018-03-12T02:09:50Z",
 				},
 			},
 			DriverLocation{
@@ -107,9 +107,17 @@ var _ = Describe("Store", func() {
 				Location: Location{
 					Latitude:  15.15,
 					Longitude: 81.81,
-					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+					UpdatedAt: "2018-03-12T02:09:52Z",
 				},
 			},
+			// DriverLocation{
+			//	DriverID: driverID,
+			//	Location: Location{
+			//		Latitude:  15.15,
+			//		Longitude: 81.81,
+			//		UpdatedAt: "2018-03-12T03:09:52Z",
+			//	},
+			// },
 		}
 
 		BeforeEach(func() {
@@ -118,19 +126,19 @@ var _ = Describe("Store", func() {
 			}
 		})
 
-		It("retrieves all the locations for a given DriverID from redis", func() {
+		It("retrieves all the locations for the last 5 minutes for a given DriverID from redis", func() {
 			locations := store.GetLocations(driverID)
 
 			Expect(locations).To(Equal([]Location{
 				Location{
 					Latitude:  15.15,
 					Longitude: 81.81,
-					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+					UpdatedAt: "2018-03-12T02:09:52Z",
 				},
 				Location{
 					Latitude:  51.51,
 					Longitude: 18.18,
-					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+					UpdatedAt: "2018-03-12T02:09:50Z",
 				},
 			}))
 		})

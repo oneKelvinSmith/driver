@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/garyburd/redigo/redis"
 )
@@ -110,6 +111,19 @@ func (s *Store) DeleteLocations(id DriverID) {
 	conn := s.Pool.Get()
 	_, err := conn.Do("DEL", key(id))
 	handleStoreError(err)
+}
+
+func fiveMinutesAgo() int64 {
+	t := time.Now().Add(-5 * time.Minute)
+
+	return t.Unix()
+}
+
+func updatedAt(l Location) int64 {
+	t, err := time.Parse(time.RFC3339, l.UpdatedAt)
+	handleStoreError(err)
+
+	return t.Unix()
 }
 
 func key(id DriverID) string {

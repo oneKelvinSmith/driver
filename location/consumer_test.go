@@ -37,7 +37,7 @@ var _ = Describe("Consumer", func() {
 				Location: Location{
 					Latitude:  48.8566,
 					Longitude: 2.3522,
-					UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+					UpdatedAt: "2018-03-12T02:09:52Z",
 				},
 			}
 
@@ -53,7 +53,7 @@ var _ = Describe("Consumer", func() {
 			Expect(location).To(Equal(Location{
 				Latitude:  48.8566,
 				Longitude: 2.3522,
-				UpdatedAt: "YYYY-MM-DDTHH:MM:SSZ",
+				UpdatedAt: "2018-03-12T02:09:52Z",
 			}))
 		})
 	})
