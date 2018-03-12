@@ -95,12 +95,17 @@ func (s *Store) GetLocations(id DriverID) []Location {
 	err = conn.Close()
 	handleStoreError(err)
 
-	locations := make([]Location, len(values))
+	locations := []Location{}
 	var location Location
-	for index, locationJSON := range values {
-		err = json.Unmarshal(locationJSON, &location)
+	for i := len(values) - 1; i >= 0; i-- {
+		err = json.Unmarshal(values[i], &location)
 		handleStoreError(err)
-		locations[index] = location
+
+		if fiveMinutesAgo() < updatedAt(location) {
+			locations = append(locations, location)
+		} else {
+			return locations
+		}
 	}
 
 	return locations

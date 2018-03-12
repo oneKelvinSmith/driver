@@ -2,6 +2,7 @@ package main_test
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/garyburd/redigo/redis"
 
@@ -10,6 +11,14 @@ import (
 
 	. "driver/location"
 )
+
+func currentTimestamp() string {
+	return time.Now().Format(time.RFC3339)
+}
+
+func pastTimestamp() string {
+	return time.Now().Add(-10 * time.Minute).Format(time.RFC3339)
+}
 
 var _ = Describe("Store", func() {
 	store := &Store{}
@@ -35,12 +44,13 @@ var _ = Describe("Store", func() {
 	})
 
 	Describe("PushLocation", func() {
+		updatedAt := currentTimestamp()
 		driverLocation := DriverLocation{
 			DriverID: driverID,
 			Location: Location{
 				Latitude:  48.48,
 				Longitude: 3.33,
-				UpdatedAt: "2018-03-12T02:09:41Z",
+				UpdatedAt: updatedAt,
 			},
 		}
 
@@ -56,18 +66,19 @@ var _ = Describe("Store", func() {
 			Expect(location).To(Equal(Location{
 				Latitude:  48.48,
 				Longitude: 3.33,
-				UpdatedAt: "2018-03-12T02:09:41Z",
+				UpdatedAt: updatedAt,
 			}))
 		})
 	})
 
 	Describe("GetLastLocation", func() {
+		updatedAt := currentTimestamp()
 		driverLocation := DriverLocation{
 			DriverID: driverID,
 			Location: Location{
 				Latitude:  48.48,
 				Longitude: 3.33,
-				UpdatedAt: "2018-03-12T02:09:41Z",
+				UpdatedAt: updatedAt,
 			},
 		}
 
@@ -81,7 +92,7 @@ var _ = Describe("Store", func() {
 			Expect(location).To(Equal(Location{
 				Latitude:  48.48,
 				Longitude: 3.33,
-				UpdatedAt: "2018-03-12T02:09:41Z",
+				UpdatedAt: updatedAt,
 			}))
 		})
 
@@ -93,13 +104,24 @@ var _ = Describe("Store", func() {
 	})
 
 	Describe("GetLocations", func() {
+		updatedAt := currentTimestamp()
+		oldUpdatedAt := pastTimestamp()
+
 		driverLocations := []DriverLocation{
 			DriverLocation{
 				DriverID: driverID,
 				Location: Location{
-					Latitude:  51.51,
-					Longitude: 18.18,
-					UpdatedAt: "2018-03-12T02:09:50Z",
+					Latitude:  111.111,
+					Longitude: 222.222,
+					UpdatedAt: updatedAt,
+				},
+			},
+			DriverLocation{
+				DriverID: driverID,
+				Location: Location{
+					Latitude:  11.11,
+					Longitude: 22.22,
+					UpdatedAt: updatedAt,
 				},
 			},
 			DriverLocation{
@@ -107,17 +129,9 @@ var _ = Describe("Store", func() {
 				Location: Location{
 					Latitude:  15.15,
 					Longitude: 81.81,
-					UpdatedAt: "2018-03-12T02:09:52Z",
+					UpdatedAt: oldUpdatedAt,
 				},
 			},
-			// DriverLocation{
-			//	DriverID: driverID,
-			//	Location: Location{
-			//		Latitude:  15.15,
-			//		Longitude: 81.81,
-			//		UpdatedAt: "2018-03-12T03:09:52Z",
-			//	},
-			// },
 		}
 
 		BeforeEach(func() {
@@ -131,14 +145,14 @@ var _ = Describe("Store", func() {
 
 			Expect(locations).To(Equal([]Location{
 				Location{
-					Latitude:  15.15,
-					Longitude: 81.81,
-					UpdatedAt: "2018-03-12T02:09:52Z",
+					Latitude:  111.111,
+					Longitude: 222.222,
+					UpdatedAt: updatedAt,
 				},
 				Location{
-					Latitude:  51.51,
-					Longitude: 18.18,
-					UpdatedAt: "2018-03-12T02:09:50Z",
+					Latitude:  11.11,
+					Longitude: 22.22,
+					UpdatedAt: updatedAt,
 				},
 			}))
 		})
