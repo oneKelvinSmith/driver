@@ -12,7 +12,8 @@ defmodule Gateway.Zombie.Api do
   end
 
   def url(driver_id) do
-    host() <> ":" <> port() <> "/drivers/#{driver_id}"
+    host = Application.get_env(:gateway, :zombie_host)
+    host <> "/drivers/#{driver_id}"
   end
 
   def handle_response({:ok, %{status_code: 200, body: body}}) do
@@ -25,13 +26,5 @@ defmodule Gateway.Zombie.Api do
 
   def parse(body) do
     Poison.Parser.parse!(body)
-  end
-
-  defp host do
-    Application.get_env(:gateway, :zombie_host)
-  end
-
-  defp port do
-    Application.get_env(:gateway, :zombie_port)
   end
 end

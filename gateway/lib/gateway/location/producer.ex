@@ -42,11 +42,8 @@ defmodule Gateway.Location.Producer do
   end
 
   defp config do
-    port = get_env(:nsqd_port)
-    host = get_env(:nsqd_host)
-
     %NSQ.Config{
-      nsqds: [host <> ":" <> port],
+      nsqds: [get_env(:nsqd_host)],
       user_agent: @user_agent
     }
   end

@@ -35,13 +35,11 @@ $ mix run --no-halt
 Or with docker (with the other services running compose cluster):
 
 ```
-docker run --rm -it -p 3000:3000 \
+$ docker run --rm -it -p 3000:3000 \
                       -e PORT=3000 \
                       -e COOKIE=cookie \
                       -e NSQD_TOPIC=driver \
-                      -e NSQD_HOST=docker.for.mac.host.internal \
-                      -e ZOMBIE_HOST=docker.for.mac.host.internal \
-                      -e NSQD_PORT=4150 \
-                      -e ZOMBIE_PORT=3002 \
+                      -e NSQD_HOST=docker.for.mac.host.internal:4150 \
+                      -e ZOMBIE_HOST=docker.for.mac.host.internal:3002 \
                          gateway
 ```
