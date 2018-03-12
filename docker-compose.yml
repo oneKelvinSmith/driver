@@ -50,9 +50,11 @@ services:
       - nsqlookupd
       - redis
     ports:
-      - "3001:3000"
+      - "3001:3001"
 
   zombie:
     build: ./zombie
+    depends_on:
+      - location
     ports:
-      - "3002:3000"
+      - "3002:3002"

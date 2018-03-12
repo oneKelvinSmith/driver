@@ -22,7 +22,7 @@ FROM alpine:3.7
 
 WORKDIR /service
 
-ENV PORT=3000
+ENV PORT=3002
 
 EXPOSE $PORT
 

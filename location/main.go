@@ -10,5 +10,5 @@ func main() {
 
 	api := API{}
 	api.ConnectStore(&store)
-	api.Serve(":3000")
+	api.Serve(":3001")
 }

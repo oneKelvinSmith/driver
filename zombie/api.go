@@ -11,7 +11,8 @@ import (
 
 // API contains the HTTP router and serves the API
 type API struct {
-	router *mux.Router
+	Categoriser *Categoriser
+	router      *mux.Router
 }
 
 // Serve will start the api on a given port
@@ -38,10 +39,14 @@ func (s *API) getHome(w http.ResponseWriter, r *http.Request) {
 func (s *API) getDriver(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	driverID, err := strconv.Atoi(mux.Vars(r)["id"])
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	handleError(err)
 
-	driver := Driver{ID: driverID, Zombie: true}
+	driver := Driver{ID: DriverID(id), Zombie: true}
+	locations := s.Categoriser.GetLocations(driver)
+
+	s.Categoriser.Categorise(&driver, locations)
+
 	driverJSON, err := json.Marshal(driver)
 	handleError(err)
 

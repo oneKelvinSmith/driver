@@ -42,8 +42,8 @@ func (c *Consumer) UpdateLocation(m *nsq.Message) error {
 			UpdatedAt: time.Now().Format(time.RFC3339),
 		},
 	}
-	err := json.Unmarshal(m.Body, &driverLocation)
 
+	err := json.Unmarshal(m.Body, &driverLocation)
 	if err != nil {
 		return err
 	}
