@@ -22,27 +22,25 @@ services:
     depends_on:
       - nsqlookupd
     ports:
-
       - "4171:4171"
+
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
 
-  gateway:
-    build: ./gateway
-    depends_on:
-      - nsqd
-    ports:
-      - "3000:3000"
-    environment:
-      - PORT=3000
-      - COOKIE="cookie"
-      - NSQD_TOPIC="driver"
-      - NSQD_HOST=nsqd
-      - ZOMBIE_HOST=zombie
-      - NSQD_PORT="4150"
-      - ZOMBIE_PORT="3002"
+  # gateway:
+  #   build: ./gateway
+  #   depends_on:
+  #     - nsqd
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - PORT=3000
+  #     - COOKIE="cookie"
+  #     - NSQD_TOPIC="driver"
+  #     - NSQD_HOST="nsqd:4150"
+  #     - ZOMBIE_HOST="zombie:3002"
 
   location:
     build: ./location

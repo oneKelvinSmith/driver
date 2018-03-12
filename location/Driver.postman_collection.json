@@ -1,0 +1,151 @@
+{
+	"info": {
+		"name": "Heetch",
+		"_postman_id": "6c092603-6242-471b-9da2-31194cf3dab6",
+		"description": "Tests for Zombie Location Gateway.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "[gateway] GET /drivers/:id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "localhost:3000/drivers/42",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"drivers",
+						"42"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "[zombie] GET /drivers/:id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "localhost:3002/drivers/42",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"drivers",
+						"42"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "[location] GET /drivers/:id/coordinates?minutes=5",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "localhost:3001/drivers/42/coordinates?minutes=5",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"drivers",
+						"42",
+						"coordinates"
+					],
+					"query": [
+						{
+							"key": "minutes",
+							"value": "5",
+							"equals": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "[gateway] PATCH /drivers/:id",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"latitude\": 48.8566,\n  \"longitude\": 2.3522\n}"
+				},
+				"url": {
+					"raw": "localhost:3000/drivers/42",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"drivers",
+						"42"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "[nsqd] GET /stats",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:4151/stats",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4151",
+					"path": [
+						"stats"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
